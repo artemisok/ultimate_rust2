@@ -13,14 +13,25 @@
 //
 // Once you have completed defining the error type correctly, you should be able to run
 // `cargo build --lib` without any build errors or warnings. Then go to main.rs and continue with #2
+use thiserror::Error;
 
-// pub enum DolphinError...
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum DolphinError {
+    #[error("This Doplphin is way too hungry to be cheerful")]
+    Hungry,
+    #[error("This Doplphin is way too young, what an age")]
+    TooYoung,
+    #[error("Were not there any more letters to put as name for ya")]
+    LongName
+}
 
 pub struct Dolphin {
     pub name: String,
     pub age: u8,
     pub hungry: bool,
 }
+
 
 impl Dolphin {
     pub fn say_your_name(&self) -> Result<String, DolphinError> {
@@ -32,6 +43,7 @@ impl Dolphin {
     }
     pub fn flip(&self) -> Result<String, DolphinError> {
         if self.age < 4 {
+
             Err(DolphinError::TooYoung)
         } else {
             Ok(format!("Yippee, I'm doing a flip!"))

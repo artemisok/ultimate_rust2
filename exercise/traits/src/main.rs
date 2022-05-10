@@ -1,20 +1,65 @@
+use std::convert::From;
+
+#[derive(PartialEq)]
+#[derive(Clone)]
+#[derive(Copy)]
+#[derive(Debug)]
 pub enum Cake {
     Chocolate,
     MapleBacon,
-    Spice,
+    Space,
 }
 
+// #[derive(std::cmp::PartialEq)]
+#[derive(Clone)]
+#[derive(Copy)]
+#[derive(Debug)]
 pub struct Party {
     pub at_restaurant: bool,
     pub num_people: u8,
     pub cake: Cake,
 }
+trait Throw {
+    fn throw(self);
+}
+
+
+impl Default for Party {
+    fn default()-> Self { Party{
+        at_restaurant: true,
+        num_people: 8,
+        cake: Cake::Chocolate,
+        }
+    }
+
+}    
+
+impl Throw for Party {
+    fn throw(self){
+        println!("Party is at restaurant: {}", self.at_restaurant);
+        println!("Num of people attending is {}", self.num_people);
+        println!("What a nice {:?} cake! 🎂", self.cake);
+
+    }
+
+}  
+
+
+
+impl PartialEq for Party {
+    fn eq(&self, other:&Self) -> bool {
+      self.cake == other.cake
+
+    }
+
+}  
+
 
 fn main() {
     // 1. The code below doesn't work because Cake doesn't implement Debug.
     // - Derive the Debug trait for the Cake enum above so this code will work. Then, run the code.
 
-    let cake = Cake::Spice;
+    let cake = Cake::Space;
     admire_cake(cake);
 
     // 2. Uncomment the code below. It doesn't work since `cake` was *moved* into the admire_cake()
@@ -23,11 +68,11 @@ fn main() {
     // function instead of moved.
     // - Hint: You may need to derive another trait in order to be able to derive the Copy trait
 
-    // match cake {
-    //     Cake::Chocolate => println!("The name's Chocolate. Dark...Chocolate."),
-    //     Cake::MapleBacon => println!("Dreams do come true!"),
-    //     Cake::Spice => println!("Great, let's spice it up!"),
-    // }
+    match cake {
+        Cake::Chocolate => println!("The name's Chocolate. Dark...Chocolate."),
+        Cake::MapleBacon => println!("Dreams do come true!"),
+        Cake::Space => println!("Great, let's space it up!"),
+    };
 
     // 3. Uncomment the println below. It doesn't work since the Party struct doesn't implement the
     // Debug or Default traits.
@@ -35,16 +80,18 @@ fn main() {
     // - Manually implement the Default trait for the Party struct. Use the value below as the
     // default value that you return from the `default` method:
     //
-    //     Party {
-    //         at_restaurant: true,
-    //         num_people: 8,
-    //         cake: Cake::Chocolate,
-    //     }
+       let custom_party = Party {
+            at_restaurant: true,
+            num_people: 17,
+            cake: Cake::MapleBacon,
+        };
+
+        custom_party.throw();
     //
     // Hint: If you get stuck, there is an example at
     // https://doc.rust-lang.org/std/default/trait.Default.html#how-can-i-implement-default
 
-    // println!("The default Party is\n{:#?}", Party::default());
+    println!("The default Party is\n{:#?}", Party::default());
 
     // 4. You prefer Maple Bacon cake. Use "struct update syntax" to create a Dessert with `cake`
     // set to `Cake::MapleBacon`, but the rest of the values are default.
@@ -52,10 +99,10 @@ fn main() {
     // Hint: The trick to struct update syntax is specifying the value(s) you want to customize
     // first and then ending the struct with `..Default::default()` -- but no comma after that!
 
-    // let party = Party {
-    //     ...
-    // };
-    // println!("Yes! My party has my favorite {:?} cake!", party.cake);
+    let party = Party {
+            cake: Cake::MapleBacon, ..Default::default()
+    };
+    println!("Yes! My party has my favorite {:?} cake!", party.cake);
 
     // 5. Parties are "equal" if they have the same cake.
     // - Derive the PartialEq trait for the Cake enum so Cakes can be compared.
@@ -63,14 +110,14 @@ fn main() {
     // then they are equal, no matter the location or number of attendees at the party.
     // - Uncomment and run the code below.
 
-    // let other_party = Party {
-    //     at_restaurant: false,
-    //     num_people: 235,
-    //     cake: Cake::MapleBacon,
-    // };
-    // if party == other_party {
-    //     println!("Your party is just like mine!");
-    // }
+    let other_party = Party {
+        at_restaurant: false,
+        num_people: 235,
+        cake: Cake::MapleBacon,
+    };
+    if party == other_party {
+        println!("Your party is just like mine!");
+    }
 
     // Challenge: You would like to be able to pass a Party struct into the smell_cake() function
     // which takes a type T which implements the Into<Cake> trait.
@@ -78,20 +125,56 @@ fn main() {
     // - Implement `From<Party> for Cake` so that the function call below works.
     //
 
-    // smell_cake(party);
+    smell_cake(party);
 
     // Challenge 2: Implement `From<&Party> for Cake` so that you can smell your cake without
     // consuming it. Change the code above to pass in a &party. Then uncomment and run the code
     // below. After all, you want to smell your cake and eat it, too!
 
-    // println!("Yum! I'm eating this cake: {:?}. Oops, I dropped it on the floor.", party.cake);
-    // drop(cake);
+    println!("Yum! I'm eating this cake: {:?}. Oops, I dropped it on the floor.", party.cake);
+    drop(cake);
 }
+
+
+
+
+
+
+impl From<Party> for Cake {
+    fn from(T:Party)-> Self{ 
+        T.cake
+    
+  }
+
+}    
+
+// trait From {
+//     fn from(&Party);
+// }
+
+
+// impl From for Cake {
+//     fn into(&self)-> Cake {
+//         self.cake
+//     }
+
+// }    
+
+
 
 pub fn admire_cake(cake: Cake) {
     println!("What a nice {:?} cake! 🎂", cake);
 }
 
-// pub fn smell_cake<T: Into<Cake>>(something: T) {
-//     println!("Hmm...something smells like a {:?} cake!", something.into());
-// }
+
+// let smelly_party = Party {
+//     at_restaurant: false,
+//     num_people: 3,
+//     cake: Cake::Space,
+// };
+
+
+
+pub fn smell_cake<T: Into<Cake>>(something: T) {
+    println!("Hmm...something smells like a {:?} cake!", something.into());
+}
